@@ -37,7 +37,7 @@ namespace Algoritmo
 			return diccionarioGrupos;
 		}
 
-		public Dictionary<string, List<FechaCalendarizadaDTO>> xs(int periodo)
+		public Dictionary<string, List<FechaCalendarizadaDTO>> FechasByTurno(int periodo)
 		{
 			
 
