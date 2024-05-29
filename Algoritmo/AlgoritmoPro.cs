@@ -14,7 +14,7 @@ namespace Algoritmo
 		private readonly ScedbContext context;
 
 		public AlgoritmoPro(ScedbContext context)
-        {
+		{
 			this.context = context;
 		}
 
@@ -39,7 +39,7 @@ namespace Algoritmo
 
 		public Dictionary<string, List<FechaCalendarizadaDTO>> FechasByTurno(int periodo)
 		{
-			
+
 
 			var turnosByfechas = context.FechaConHora.Where(x => x.Fecha.PeriodoId == periodo)
 				.GroupBy(x => new
@@ -58,7 +58,7 @@ namespace Algoritmo
 						Fecha = x.Fecha.Descripcion
 					}).ToList()
 				});
-			
+
 			var bloquesByTurno = new Dictionary<string, List<FechaCalendarizadaDTO>>();
 
 			string key = "";
@@ -84,7 +84,7 @@ namespace Algoritmo
 				}
 				else
 				{
-					bloquesByTurno.Add(key,turno.Fechas);
+					bloquesByTurno.Add(key, turno.Fechas);
 				}
 
 			}
@@ -92,7 +92,26 @@ namespace Algoritmo
 			return bloquesByTurno;
 		}
 
+		public List<FechaCalendarizadaDTO> FechasNoDisponibles(Grupo grupo)
+		{
+			// Deberia eliminar fechas en donde ya tenga el mismo grupo un examen calendarizado
+			// Deberia tener en cuenta tambien los grupos compartidos 
 
-		
-    }
+			return context.Examen
+			   .Include(x => x.FechaConHora)
+			   .Where(x => x.GrupoId == grupo.Id)
+			   .Select(x => new FechaCalendarizadaDTO()
+			   {
+				   Id = x.FechaConHoraId,
+				   Fecha = x.FechaConHora.Fecha.Descripcion,
+				   FechaHasHoraId = x.FechaConHoraId
+			   }).ToList();
+
+
+
+		}
+
+
+
+	}
 }
