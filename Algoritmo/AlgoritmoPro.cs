@@ -106,12 +106,57 @@ namespace Algoritmo
 				   Fecha = x.FechaConHora.Fecha.Descripcion,
 				   FechaHasHoraId = x.FechaConHoraId
 			   }).ToList();
-
-
-
 		}
+		public List<FechaCalendarizadaDTO> FechasNoDisponiblesxMaestro(Grupo grupo)
+		{
+			return context.Examen.Include(x => x.FechaConHora).Where(x => x.Grupo.MaestroId == grupo.MaestroId).Select(x => new FechaCalendarizadaDTO()
+			{
+				Id = x.FechaConHoraId,
+				Fecha = x.FechaConHora.Fecha.Descripcion,
+				FechaHasHoraId = x.FechaConHoraId
+			}).ToList();
+		}
+        public List<FechaCalendarizadaDTO> FechasNoDisponiblesxAula(Grupo grupo)
+        {
+            var aula = context.Aula.FirstOrDefault(a => a.Nombre == grupo.Aula);
+            if (aula == null)
+            {
+                
+                return new List<FechaCalendarizadaDTO>();
+            }
+            return context.Examen
+                .Include(x => x.FechaConHora)
+                .Where(x => x.AulaId == aula.Id)
+                .Select(x => new FechaCalendarizadaDTO()
+                {
+                    Id = x.FechaConHoraId,
+                    Fecha = x.FechaConHora.Fecha.Descripcion,
+                    FechaHasHoraId = x.FechaConHoraId
+                }).ToList();
+        }
+        public List<Aula> ObtenerAulasDisponibles(Grupo grupo)
+        {
+            var carreraId = grupo.CarreraId;
+            var edificioIds = context.CarreraConEdificio
+                .Where(ce => ce.CarreraId == carreraId)
+                .Select(ce => ce.EdificioId)
+                .ToList();
+
+            return context.Aula
+                .Where(a => edificioIds.Contains(a.EdificioId))
+                .ToList();
+        }
+        public bool AulaDisponibleEnFecha(int aulaId, int fechaConHoraId)
+        {
+            return !context.Examen
+                .Any(e => e.AulaId == aulaId && e.FechaConHoraId == fechaConHoraId);
+        }
+        //public List<FechaCalendarizadaDTO> FechasNoDisponiblesAula(Grupo grupo)
+        //{
+        //	return context.Examen.Include(x => x.FechaConHora).Where(x=>x.);
+        //});
 
 
 
-	}
+    }
 }
